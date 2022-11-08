@@ -28,12 +28,12 @@ class Decoder(tf.keras.Model):
 
         return state
 
-def create_genre_classifier():
+def create_genre_classifier(n_classes):
 
     model = tf.keras.Sequential([
         tf.keras.layers.GRU(512, return_sequences=True),
         tf.keras.layers.GRU(512, return_sequences=True),
-        tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(df["Genres"].nunique(), activation="softmax"))
+        tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(n_classes, activation="softmax"))
     ])
 
     return model
