@@ -4,6 +4,13 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from nltk.tokenize import word_tokenize
 import config
 from tqdm import tqdm
+from nltk.corpus import stopwords
+
+
+def remove_stopwords(text):
+
+    return " ".join([word.lower() if word not in stopwords.words('english') else "" for word in text.lower().split()])
+
 
 if "combined-data.csv" not in os.listdir("Data/"):
 
@@ -20,7 +27,7 @@ if "combined-data.csv" not in os.listdir("Data/"):
     # Filter to only get English songs
     df = df[df["language"] == "en"]
 
-    # Drop the unnessecary columns
+    # Drop the unnecessary columns
     df = df.drop(["Artist","Songs","Popularity", "ALink", "SLink"], axis=1)
 
     # Keep only the first genres
@@ -32,33 +39,36 @@ if "combined-data.csv" not in os.listdir("Data/"):
     # Drop the none values
     df = df.dropna()
 
+    df['Clean_Lyric'] = df['Lyric'].apply(remove_stopwords)
+
     # Pickle to use the dataframe later
     df.to_csv("Data/combined-data.csv")
 
 else:
 
     # Reading the dataframe if it is already created
-    df = pd.read_pickle("Data/combined-data.csv")
-
+    df = pd.read_csv("Data/combined-data.csv")
 
 # Extract the lyrics and names of songs
-song_lyrics = list(df["Lyric"])
+song_lyrics = list(df["Clean_Lyric"])
 song_names = list(df["SName"])
 
 # Tag every single song lyric
 tagged_lyrics = [TaggedDocument(words = word_tokenize(song_lyrics[i]), tags=[str(song_names[i])]) for i in range(len(song_lyrics))]
 
 # Initialization of Doc2Vec model
-model = Doc2Vec(size=config.embedding_dimension,
+model = Doc2Vec(vector_size=config.embedding_dimension,
                 alpha=config.alpha,
                 min_alpha=config.min_alpha,
                 min_count=config.min_count,
                 dm=config.dm)
 
+# Building vocabulary in the model
+model.build_vocab(tagged_lyrics)
+
 for epoch in tqdm(range(config.EPOCH)):
 
-    model.train(tagged_lyrics, total_examples=model.corpus_count,
-                epochs=model.iter)
+    model.train(tagged_lyrics, total_examples=model.corpus_count, epochs=model.epochs)
 
     # Decrease the learning rate
     model.alpha -= 0.0002
@@ -66,4 +76,4 @@ for epoch in tqdm(range(config.EPOCH)):
     # fix the learning rate, no decay
     model.min_alpha = model.alpha
 
-model.save("d2v.model")
+model.save("Models/d2v.model")
