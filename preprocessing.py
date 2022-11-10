@@ -11,6 +11,20 @@ def remove_stopwords(text):
 
     return " ".join([word.lower() if word not in stopwords.words('english') else "" for word in text.lower().split()])
 
+def trim_genres(genre):
+
+  main_genres = ["Blues", "Country", "Electronic", "Folk", "Hip hop", "Jazz", "Pop", "R&B", "Heavy Metal", "Pop/Rock", "Romântico", "Rap", "Rock"]
+
+  genres = genre.split(";")
+
+  for i in range(len(genres)):
+
+    if genres[i].strip() in main_genres:
+
+      return genres[i].strip()
+
+  return None
+
 
 if "combined-data.csv" not in os.listdir("Data/"):
 
@@ -30,19 +44,16 @@ if "combined-data.csv" not in os.listdir("Data/"):
     # Drop the unnecessary columns
     df = df.drop(["Artist","Songs","Popularity", "ALink", "SLink"], axis=1)
 
-    # Keep only the first genres
-    df["Genres"] = df["Genres"].map(lambda x: str(x).split(";")[0])
+    df["Genres"] = df["Genres"].astype("string")
 
-    # Remove the nan genre rows
-    df = df[df["Genres"] != "nan"]
+    df["Genres"] = df["Genres"].map(trim_genres)
 
-    # Drop the none values
     df = df.dropna()
 
-    df['Clean_Lyric'] = df['Lyric'].apply(remove_stopwords)
+    df['Clean_Lyric'] = df['Lyric'].map(remove_stopwords)
 
     # Pickle to use the dataframe later
-    df.to_csv("Data/combined-data.csv")
+    df.to_csv("Data/combined-data.csv",index=False)
 
 else:
 
