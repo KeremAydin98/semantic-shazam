@@ -5,7 +5,7 @@ from nltk.tokenize import word_tokenize
 import config
 from tqdm import tqdm
 from nltk.corpus import stopwords
-
+import random
 
 def remove_stopwords(text):
 
@@ -13,17 +13,24 @@ def remove_stopwords(text):
 
 def trim_genres(genre):
 
-  main_genres = ["Blues", "Country", "Electronic", "Folk", "Hip hop", "Jazz", "Pop", "R&B", "Heavy Metal", "Pop/Rock", "Romântico", "Rap", "Rock"]
+    main_genres = ["Blues", "Country", "Electronica", "Folk", "Hip hop", "Jazz", "Pop", "R&B", "Heavy Metal", "Pop/Rock", "Romântico", "Rap", "Rock"]
 
-  genres = genre.split(";")
+    genres = genre.split(";")
+    genres_list = []
 
-  for i in range(len(genres)):
+    for i in range(len(genres)):
 
-    if genres[i].strip() in main_genres:
+        if genres[i].strip() in main_genres:
 
-      return genres[i].strip()
+          genres_list.append(genres_list)
 
-  return None
+    if len(genres_list) > 0:
+
+        return random.choice(genres_list)
+
+    else:
+
+        return None
 
 
 if "combined-data.csv" not in os.listdir("Data/"):
@@ -42,9 +49,11 @@ if "combined-data.csv" not in os.listdir("Data/"):
     df = df[df["language"] == "en"]
 
     # Drop the unnecessary columns
-    df = df.drop(["Artist","Songs","Popularity", "ALink", "SLink"], axis=1)
+    df = df.drop(["Songs","Popularity", "ALink", "SLink"], axis=1)
 
     df["Genres"] = df["Genres"].astype("string")
+
+    df = df.dropna()
 
     df["Genres"] = df["Genres"].map(trim_genres)
 
@@ -60,7 +69,7 @@ else:
     # Reading the dataframe if it is already created
     df = pd.read_csv("Data/combined-data.csv")
 
-# Extract the lyrics and names of songs
+"""# Extract the lyrics and names of songs
 song_lyrics = list(df["Clean_Lyric"])
 song_names = list(df["SName"])
 
@@ -87,4 +96,4 @@ for epoch in tqdm(range(config.EPOCH)):
     # fix the learning rate, no decay
     model.min_alpha = model.alpha
 
-model.save("Models/d2v.model")
+model.save("Models/d2v.model")"""
