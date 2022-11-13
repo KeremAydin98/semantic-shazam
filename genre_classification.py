@@ -23,7 +23,8 @@ song_vectors = doc2vec.dv
 song_names = list(df["SName"])
 
 genres = df["Genres"]
-main_genres = ["Rock", "Pop", "Heavy Metal", "Rap", "Pop/Rock", "R&B", "Romântico", "Country", "Folk", "Jazz", "Blues"]
+main_genres = ["Pop", "Romântico", "Pop/Rock", "R&B", "Rap", "Electronica",
+                 "Rock", "Blues",  "Jazz", "Folk", "Country",  "Heavy Metal"]
 genres = genres.map(lambda x: main_genres.index(x))
 
 # Doc2Vec vectors of songs
@@ -33,11 +34,14 @@ data_points = np.array(list(map(get_doc2vec_vector,song_names)))
 model = create_genre_classifier(output_size = df["Genres"].nunique())
 
 # Separation of train and test datasets
-X_train, X_test, y_train, y_test = train_test_split(data_points, np.array(genres), test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(data_points, np.array(genres), test_size=0.1, random_state=42)
 
 y_train_one_hot = tf.one_hot(y_train, len(main_genres))
 y_test_one_hot = tf.one_hot(y_test, len(main_genres))
 
+print(df["Genres"].value_counts())
+print(X_train.shape, y_train_one_hot.shape, X_test.shape, y_test_one_hot.shape)
 model.fit(X_train, y_train_one_hot, validation_data=(X_test, y_test_one_hot), epochs=10)
 
 model.save("Models/genre_classifier_model.h5")
+

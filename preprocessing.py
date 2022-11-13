@@ -15,8 +15,8 @@ def remove_stopwords(text):
 
 def trim_genres(genre):
 
-    main_genres = ["Blues", "Country", "Electronica", "Folk", "Hip hop", "Jazz", "Pop", "R&B", "Heavy Metal",
-                   "Pop/Rock", "Romântico", "Rap", "Rock"]
+    main_genres = ["Pop", "Romântico", "Pop/Rock", "R&B", "Rap", "Electronica",
+                   "Rock", "Blues", "Jazz", "Folk", "Country", "Heavy Metal"]
 
     genres = genre.split(";")
     genres_list = []

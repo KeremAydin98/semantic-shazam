@@ -1,6 +1,7 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
+
 class Encoder(tf.keras.Model):
 
     def __init__(self, vocab_size, embedding_dim, enc_units, batch_size):
@@ -73,9 +74,8 @@ class Decoder(tf.keras.Model):
 def create_genre_classifier(output_size):
 
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(128, activation="relu"),
-        tf.keras.layers.Dense(128, activation="relu"),
-        tf.keras.layers.Dense(128, activation="relu"),
+        tf.keras.layers.Dense(512, activation="relu"),
+        tf.keras.layers.Dense(512, activation="relu"),
         tf.keras.layers.Dense(output_size, activation="softmax"),
     ])
 

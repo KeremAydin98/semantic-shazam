@@ -15,9 +15,11 @@ def prepare_test_data(test_data):
     v1 = doc2vec.infer_vector(test_data)
     return v1
 
+
 def get_doc2vec_vector(song_name):
 
     return song_vectors[song_name]
+
 
 doc2vec = Doc2Vec.load("Models/d2v.model")
 df = pd.read_csv("Data/combined-data.csv")
@@ -34,5 +36,18 @@ random_song_vector = get_doc2vec_vector(df["SName"].iloc[index])
 print(random_song_vector)
 prediction = model.predict(tf.expand_dims(random_song_vector,0))
 print(prediction)
-main_genres = ["Rock", "Pop", "Heavy Metal", "Rap", "Pop/Rock", "R&B", "Romântico", "Country", "Folk", "Jazz", "Blues"]
-print(main_genres[int(tf.argmax(prediction,-1))])
+main_genres = ["Pop", "Romântico", "Pop/Rock", "R&B", "Rap", "Electronica",
+                 "Rock", "Blues",  "Jazz", "Folk", "Country",  "Heavy Metal"]
+
+print("\nPredictions:")
+print("1. ", main_genres[int(tf.argmax(prediction,-1))])
+
+prediction[0][int(tf.argmax(prediction,-1))] = 0
+
+print("2. ",main_genres[int(tf.argmax(prediction,-1))])
+
+prediction[0][int(tf.argmax(prediction,-1))] = 0
+
+print("3. ",main_genres[int(tf.argmax(prediction,-1))])
+
+print("Given genre: ",df["Genres"].iloc[index])
