@@ -1,17 +1,18 @@
 import pandas as pd
 from gensim.models.doc2vec import Doc2Vec
-from nltk import word_tokenize
 import numpy as np
 from sklearn.model_selection import train_test_split
 from models import *
-from nltk.corpus import stopwords
 import tensorflow as tf
 
+# Loading the trained Doc2Vec vectors
 doc2vec = Doc2Vec.load("Models/d2v.model")
+
 
 def get_doc2vec_vector(song_name):
 
     return song_vectors[song_name]
+
 
 # Reading the dataframe
 df = pd.read_csv("Data/combined-data.csv")
@@ -25,7 +26,7 @@ genres = df["Genres"]
 main_genres = ["Rock", "Pop", "Heavy Metal", "Rap", "Pop/Rock", "R&B", "Romântico", "Country", "Folk", "Jazz", "Blues"]
 genres = genres.map(lambda x: main_genres.index(x))
 
-# Doc2vec vectors of songs
+# Doc2Vec vectors of songs
 data_points = np.array(list(map(get_doc2vec_vector,song_names)))
 
 # Create the model for genre classification

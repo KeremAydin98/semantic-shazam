@@ -22,7 +22,7 @@ def trim_genres(genre):
 
         if genres[i].strip() in main_genres:
 
-          genres_list.append(genres_list)
+          genres_list.append(genres[i].strip())
 
     if len(genres_list) > 0:
 
