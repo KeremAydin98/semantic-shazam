@@ -69,7 +69,7 @@ else:
     # Reading the dataframe if it is already created
     df = pd.read_csv("Data/combined-data.csv")
 
-"""# Extract the lyrics and names of songs
+# Extract the lyrics and names of songs
 song_lyrics = list(df["Clean_Lyric"])
 song_names = list(df["SName"])
 
@@ -96,4 +96,4 @@ for epoch in tqdm(range(config.EPOCH)):
     # fix the learning rate, no decay
     model.min_alpha = model.alpha
 
-model.save("Models/d2v.model")"""
+model.save("Models/d2v.model")
