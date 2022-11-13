@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+import tensorflow_addons as tfa
 
 class Encoder(tf.keras.Model):
 
@@ -33,17 +33,41 @@ class Decoder(tf.keras.Model):
         super(Decoder, self).__init__()
         self.batch_size = batch_size
         self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+        self.dec_units = dec_units
 
         # Final dense layer
         self.fl = tf.keras.layers.Dense(vocab_size)
 
+        # Decoder recurrent structure
+        self.decoder_rnn_cell = tf.keras.layers.GRU(self.dec_units)
 
-    def call(self, x):
+        # A training sampler that simply reads its inputs.
+        self.sampler = tfa.seq2seq.sampler.TrainingSampler()
 
-        x = tf.keras.layers.GRU(256, return_sequences=True)(x)
-        output, state = tf.keras.layers.GRU(256, return_state=True)(x)
+        # Create attention mechanism
+        self.attention_mechanism = tfa.seq2seq.BahdanauAttention(units=self.dec_units, memory=None,
+                                                                 memory_sequence_length= self.batch_size*[max_length_input])
 
-        return state
+        # Wrap attention mechanism with the fundamental rnn cell of the decoder
+        self.rnn_cell = tfa.seq2seq.AttentionWrapper(self.decoder_rnn_cell, self.attention_mechanism,
+                                                     attention_layer_size=self.dec_units)
+
+        # Define the decoder with respect to fundamental rnn cell
+        self.decoder = tfa.seq2seq.BasicDecoder(self.rnn_cell, sampler=self.sampler, output_layer=self.fl)
+
+    def build_initial_state(self, batch_size, encoder_state, dtype):
+
+        decoder_initial_state = self.rnn_cell.get_initial_state(batch_size=batch_size, dtype=dtype)
+        decoder_initial_state = decoder_initial_state.clone(hidden_state=encoder_state)
+
+        return decoder_initial_state
+    def call(self, x, initial_state):
+
+        x = self.embedding(x)
+        output, _ = self.decoder(x, initial_state=initial_state,
+                                 sequence_length = self.batch_size * [max_length_output-1])
+
+        return output
 
 
 def create_genre_classifier(output_size):

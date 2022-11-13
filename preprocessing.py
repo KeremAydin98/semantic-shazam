@@ -7,13 +7,16 @@ from tqdm import tqdm
 from nltk.corpus import stopwords
 import random
 
+
 def remove_stopwords(text):
 
     return " ".join([word.lower() if word not in stopwords.words('english') else "" for word in text.lower().split()])
 
+
 def trim_genres(genre):
 
-    main_genres = ["Blues", "Country", "Electronica", "Folk", "Hip hop", "Jazz", "Pop", "R&B", "Heavy Metal", "Pop/Rock", "Romântico", "Rap", "Rock"]
+    main_genres = ["Blues", "Country", "Electronica", "Folk", "Hip hop", "Jazz", "Pop", "R&B", "Heavy Metal",
+                   "Pop/Rock", "Romântico", "Rap", "Rock"]
 
     genres = genre.split(";")
     genres_list = []
@@ -22,7 +25,7 @@ def trim_genres(genre):
 
         if genres[i].strip() in main_genres:
 
-          genres_list.append(genres[i].strip())
+            genres_list.append(genres[i].strip())
 
     if len(genres_list) > 0:
 
@@ -66,7 +69,7 @@ if "combined-data.csv" not in os.listdir("Data/"):
 
 else:
 
-    # Reading the dataframe if it is already created
+    # Reading the dataframe if it has already been created
     df = pd.read_csv("Data/combined-data.csv")
 
 # Extract the lyrics and names of songs
@@ -74,7 +77,8 @@ song_lyrics = list(df["Clean_Lyric"])
 song_names = list(df["SName"])
 
 # Tag every single song lyric
-tagged_lyrics = [TaggedDocument(words = word_tokenize(song_lyrics[i]), tags=[str(song_names[i])]) for i in range(len(song_lyrics))]
+tagged_lyrics = [TaggedDocument(words = word_tokenize(song_lyrics[i]), tags=[str(song_names[i])]) for
+                 i in range(len(song_lyrics))]
 
 # Initialization of Doc2Vec model
 model = Doc2Vec(vector_size=config.embedding_dimension,
