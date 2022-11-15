@@ -1,7 +1,6 @@
 import pandas as pd
 from gensim.models.doc2vec import Doc2Vec
 import numpy as np
-from sklearn.model_selection import train_test_split
 from models import *
 import tensorflow as tf
 
@@ -29,19 +28,21 @@ genres = genres.map(lambda x: main_genres.index(x))
 
 # Doc2Vec vectors of songs
 data_points = np.array(list(map(get_doc2vec_vector,song_names)))
+genres = tf.one_hot(genres, len(main_genres))
+
+x_train = tf.data.Dataset.from_tensor_slices(data_points)
+y_train = tf.data.Dataset.from_tensor_slices(genres)
+
+train_dataset = tf.data.Dataset.zip((x_train, y_train))
+
+train_dataset = train_dataset.batch(8).prefetch(tf.data.AUTOTUNE)
 
 # Create the model for genre classification
 model = create_genre_classifier(output_size = df["Genres"].nunique())
 
-# Separation of train and test datasets
-X_train, X_test, y_train, y_test = train_test_split(data_points, np.array(genres), test_size=0.1, random_state=42)
 
-y_train_one_hot = tf.one_hot(y_train, len(main_genres))
-y_test_one_hot = tf.one_hot(y_test, len(main_genres))
-
-print(df["Genres"].value_counts())
-print(X_train.shape, y_train_one_hot.shape, X_test.shape, y_test_one_hot.shape)
-model.fit(X_train, y_train_one_hot, validation_data=(X_test, y_test_one_hot), epochs=10)
+early_stop = tf.keras.callbacks.EarlyStopping(monitor="loss", patience=2)
+model.fit(train_dataset, epochs=1000, callbacks=[early_stop])
 
 model.save("Models/genre_classifier_model.h5")
 

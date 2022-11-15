@@ -29,25 +29,27 @@ model = tf.keras.models.load_model("Models/genre_classifier_model.h5")
 song_vectors = doc2vec.dv
 
 
-index = random.choice(np.arange(0, len(df)))
-print("Random song name:",df["SName"].iloc[index])
-print("Artist name: ",df["Artist"].iloc[index])
-random_song_vector = get_doc2vec_vector(df["SName"].iloc[index])
-print(random_song_vector)
-prediction = model.predict(tf.expand_dims(random_song_vector,0))
-print(prediction)
-main_genres = ["Pop", "Romântico", "Pop/Rock", "R&B", "Rap", "Electronica",
-                 "Rock", "Blues",  "Jazz", "Folk", "Country",  "Heavy Metal"]
+for _ in range(5):
 
-print("\nPredictions:")
-print("1. ", main_genres[int(tf.argmax(prediction,-1))])
+    index = random.choice(np.arange(0, len(df)))
+    print("Random song name:",df["SName"].iloc[index])
+    print("Artist name: ",df["Artist"].iloc[index])
+    random_song_vector = get_doc2vec_vector(df["SName"].iloc[index])
+    print("Given genre: ",df["Genres"].iloc[index],"\n")
 
-prediction[0][int(tf.argmax(prediction,-1))] = 0
+    prediction = model.predict(tf.expand_dims(random_song_vector,0))
+    main_genres = ["Pop", "Romântico", "Pop/Rock", "R&B", "Rap", "Electronica",
+                   "Rock", "Blues",  "Jazz", "Folk", "Country",  "Heavy Metal"]
+    print("\nPredictions:")
+    print("1. ", main_genres[int(tf.argmax(prediction,-1))])
 
-print("2. ",main_genres[int(tf.argmax(prediction,-1))])
+    prediction[0][int(tf.argmax(prediction,-1))] = 0
 
-prediction[0][int(tf.argmax(prediction,-1))] = 0
+    print("2. ",main_genres[int(tf.argmax(prediction,-1))])
 
-print("3. ",main_genres[int(tf.argmax(prediction,-1))])
+    prediction[0][int(tf.argmax(prediction,-1))] = 0
 
-print("Given genre: ",df["Genres"].iloc[index])
+    print("3. ",main_genres[int(tf.argmax(prediction,-1))])
+
+    print("\n")
+
