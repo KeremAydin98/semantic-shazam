@@ -9,7 +9,3 @@ dm = 1
 # Encoder-decoder configurations
 n_units = 512
 embedding_dim = 128
-
-# Length of texts
-max_text_len = 0
-max_summary_len = 0
