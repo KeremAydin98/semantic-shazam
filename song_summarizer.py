@@ -5,6 +5,9 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
+"""
+Preprocessing of input data
+"""
 # Load the data
 df = pd.read_csv("Data/combined-data.csv")
 df = df.dropna()
@@ -74,17 +77,22 @@ y_val_seq = y_tokenizer.texts_to_sequences(y_val)
 y_train = tf.keras.preprocessing.sequence.pad_sequences(y_train_seq, maxlen=max_summary_len, padding="post")
 y_val = tf.keras.preprocessing.sequence.pad_sequences(y_val_seq, maxlen=max_summary_len, padding="post")
 
-
 # Size of vocabulary (+1 for padding token)
 x_voc = len(x_tokenizer.word_index) + 1
 # Size of vocabulary (+1 for padding token)
 y_voc = len(y_tokenizer.word_index) + 1
 
+"""
+Train and save the model
+"""
+
 # Initialize the Seq2seq model
 model = create_encoder_decoder_model(x_voc, y_voc, config.embedding_dim, config.n_units, max_text_len)
 
+# Early stopping callback
 early_stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2)
 
+# Train the model
 model.fit([x_train, y_train[:,:-1]],
           y_train.reshape(y_train.shape[0], y_train.shape[1], 1)[:,1:],
           validation_data=([x_val, y_val[:,:-1]], y_val.reshape(y_val.shape[0], y_val.shape[1],1)[:,1:]),
@@ -92,5 +100,7 @@ model.fit([x_train, y_train[:,:-1]],
           batch_size=32,
           callbacks=[early_stop])
 
+# Save the model
+model.save("Models/summarizer_model.h5")
 
 
