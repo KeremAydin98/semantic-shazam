@@ -55,8 +55,8 @@ x_tokenizer = tf.keras.preprocessing.text.Tokenizer()
 x_tokenizer.fit_on_texts(x_train)
 
 # Convert text into integer sequences
-x_train_seq = x_tokenizer.text_to_sequences(x_train)
-x_val_seq = x_tokenizer.text_to_sequences(x_val)
+x_train_seq = x_tokenizer.texts_to_sequences(x_train)
+x_val_seq = x_tokenizer.texts_to_sequences(x_val)
 
 # Pad zero up to maximum length
 x_train = tf.keras.preprocessing.sequence.pad_sequences(x_train_seq, maxlen=max_text_len, padding="post")
@@ -67,20 +67,30 @@ y_tokenizer = tf.keras.preprocessing.text.Tokenizer()
 y_tokenizer.fit_on_texts(y_train)
 
 # Convert summary into integer sequences
-y_train_seq = y_tokenizer.text_to_sequences(y_train)
-y_val_seq = y_tokenizer.text_to_sequences(y_val)
+y_train_seq = y_tokenizer.texts_to_sequences(y_train)
+y_val_seq = y_tokenizer.texts_to_sequences(y_val)
 
 # Pad zero up to maximum length
 y_train = tf.keras.preprocessing.sequence.pad_sequences(y_train_seq, maxlen=max_summary_len, padding="post")
 y_val = tf.keras.preprocessing.sequence.pad_sequences(y_val_seq, maxlen=max_summary_len, padding="post")
 
-# Initialize the Seq2seq model
-model = create_encoder_decoder_model(config.vocab_size, config.embedding_dim, config.n_units, max_text_len)
 
-model.fit(x_train, y_train.reshape(y_train.shape[0], y_train.shape[1], 1),
-          validation_data=(x_val, y_val.reshape(y_val.shape[0], y_val.shape[1],1)),
+# Size of vocabulary (+1 for padding token)
+x_voc = len(x_tokenizer.word_index) + 1
+# Size of vocabulary (+1 for padding token)
+y_voc = len(y_tokenizer.word_index) + 1
+
+# Initialize the Seq2seq model
+model = create_encoder_decoder_model(x_voc, y_voc, config.embedding_dim, config.n_units, max_text_len)
+
+early_stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2)
+
+model.fit([x_train, y_train[:,:-1]],
+          y_train.reshape(y_train.shape[0], y_train.shape[1], 1)[:,1:],
+          validation_data=([x_val, y_val[:,:-1]], y_val.reshape(y_val.shape[0], y_val.shape[1],1)[:,1:]),
           epochs=50,
-          batch_size=32)
+          batch_size=32,
+          callbacks=[early_stop])
 
 
 

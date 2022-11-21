@@ -9,7 +9,6 @@ dm = 1
 # Encoder-decoder configurations
 n_units = 512
 embedding_dim = 128
-vocab_size = 10000
 
 # Length of texts
 max_text_len = 0
