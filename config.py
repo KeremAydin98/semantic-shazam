@@ -7,7 +7,10 @@ min_count = 1
 dm = 1
 
 # Encoder-decoder configurations
-enc_units = 512
-dec_units = 512
+n_units = 512
 embedding_dim = 128
 vocab_size = 10000
+
+# Length of texts
+max_text_len = 0
+max_summary_len = 0

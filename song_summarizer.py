@@ -74,16 +74,13 @@ y_val_seq = y_tokenizer.text_to_sequences(y_val)
 y_train = tf.keras.preprocessing.sequence.pad_sequences(y_train_seq, maxlen=max_summary_len, padding="post")
 y_val = tf.keras.preprocessing.sequence.pad_sequences(y_val_seq, maxlen=max_summary_len, padding="post")
 
+# Initialize the Seq2seq model
+model = create_encoder_decoder_model(config.vocab_size, config.embedding_dim, config.n_units, max_text_len)
 
-
-# Text encoder stack
-encoder = Encoder(config.vocab_size, config.embedding_dim, config.enc_units, config.batch_size)
-
-lang_tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', oov_token='<OOV>')
-lang_tokenizer.fit_on_texts(lang)
-
-train_dataset, val_dataset, inp_lang, targ_lang = dataset_creator.call(config.num_examples, config.BUFFER_SIZE,
-                                                                       config.BATCH_SIZE)
+model.fit(x_train, y_train.reshape(y_train.shape[0], y_train.shape[1], 1),
+          validation_data=(x_val, y_val.reshape(y_val.shape[0], y_val.shape[1],1)),
+          epochs=50,
+          batch_size=32)
 
 
 

@@ -1,26 +1,104 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
+def create_encoder_decoder_model(vocab_size, embedding_dim, n_units, max_text_len):
 
+    """
+    Encoder
+    """
+    encoder_inputs = tf.keras.layers.Input(shape=(max_text_len,))
 
-class Encoder(tf.keras.Model):
+    enc_emb = tf.keras.layers.Embedding(vocab_size, embedding_dim)(encoder_inputs)
 
-    def __init__(self, vocab_size, embedding_dim, enc_units, batch_size):
+    x, hidden_state = tf.keras.layers.GRU(n_units,
+                                          return_sequences=True,
+                                          return_state=True,
+                                          dropout=0.4,
+                                          recurrent_dropout=0.4)(enc_emb)
+
+    x, hidden_state = tf.keras.layers.GRU(n_units,
+                                          return_sequences=True,
+                                          return_state=True,
+                                          dropout=0.4,
+                                          recurrent_dropout=0.4)(x)
+
+    encoder_outputs, hidden_state = tf.keras.layers.GRU(n_units,
+                                                        return_sequences=True,
+                                                        return_state=True,
+                                                        dropout=0.4,
+                                                        recurrent_dropout=0.4)(x)
+
+    """
+    Decoder
+    """
+
+    # Set up the decoder, using encoder_states as the initial state
+    decoder_inputs = tf.keras.layers.Input(shape=(None,))
+
+    # Embedding layer
+    dec_emb_layer = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+    dec_emb = dec_emb_layer(decoder_inputs)
+
+    # Decoder GRU
+    decoder_GRU = tf.keras.layers.GRU(n_units,
+                                      return_sequences=True,
+                                      return_state=True,
+                                      dropout=0.4,
+                                      recurrent_dropout=0.4)
+
+    x, hidden_state = decoder_GRU(dec_emb, initial_state=[hidden_state])
+
+    decoder_dense = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(vocab_size, activation="softmax"))
+
+    decoder_outputs = decoder_dense(x)
+
+    model = tf.keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
+
+    model.compile(loss=tf.keras.losses.Sparse_Categorical_Crossentropy,
+                  optimizer=tf.keras.optimizers.Adam())
+
+    return model
+"""class Encoder(tf.keras.Model):
+
+    def __init__(self, vocab_size, embedding_dim, enc_units):
 
         super(Encoder, self).__init__()
-        self.batch_size = batch_size
         self.enc_units = enc_units
-        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+        self.vocab_size = vocab_size
+        self.embedding_size = embedding_dim
 
-        self.GRU_layer = tf.keras.layers.GRU(self.enc_units,
+        self.embedding = tf.keras.layers.Embedding(self.vocab_size, self.embedding_size)
+
+        self.GRU_layer_1 = tf.keras.layers.GRU(self.enc_units,
                                              return_sequences=True,
-                                             return_state=True)
+                                             return_state=True,
+                                             dropout=0.4,
+                                             recurrent_dropout=0.4)
+
+        self.GRU_layer_2 = tf.keras.layers.GRU(self.enc_units,
+                                               return_sequences=True,
+                                               return_state=True,
+                                               dropout=0.4,
+                                               recurrent_dropout=0.4)
+
+        self.GRU_layer_3 = tf.keras.layers.GRU(self.enc_units,
+                                               return_sequences=True,
+                                               return_state=True,
+                                               dropout=0.4,
+                                               recurrent_dropout=0.4)
 
     def call(self, x, hidden_state):
 
-        x = self.embedding(x)
-        output, hidden_state = self.GRU_layer(x, initial_state=hidden_state)
+        encoder_inputs = tf.keras.layers.Input(shape=(config.max_text_len, ))
 
-        return output, hidden_state
+        x = self.embedding(encoder_inputs)
+
+        x, hidden_state = self.GRU_layer_1(x, initial_state=hidden_state)
+
+        x, hidden_state = self.GRU_layer_2(x, initial_state=hidden_state)
+
+        x, hidden_state = self.GRU_layer_3(x, initial_state=hidden_state)
+
+        return x, hidden_state
 
     def initialize_hidden_state(self):
 
@@ -29,32 +107,19 @@ class Encoder(tf.keras.Model):
 
 class Decoder(tf.keras.Model):
 
-    def __init__(self, vocab_size, embedding_dim, dec_units, batch_size):
+    def __init__(self, vocab_size, embedding_dim, dec_units):
 
         super(Decoder, self).__init__()
-        self.batch_size = batch_size
-        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+        self.embedding_dim = embedding_dim
         self.dec_units = dec_units
+        self.vocab_size = vocab_size
 
-        # Final dense layer
-        self.fl = tf.keras.layers.Dense(vocab_size)
+        self.embedding = tf.keras.layer.Embedding(self.vocab_size, self.embedding_dim)
 
-        # Decoder recurrent structure
-        self.decoder_rnn_cell = tf.keras.layers.GRU(self.dec_units)
-
-        # A training sampler that simply reads its inputs.
-        self.sampler = tfa.seq2seq.sampler.TrainingSampler()
-
-        # Create attention mechanism
-        self.attention_mechanism = tfa.seq2seq.BahdanauAttention(units=self.dec_units, memory=None,
-                                                                 memory_sequence_length= self.batch_size*[max_length_input])
-
-        # Wrap attention mechanism with the fundamental rnn cell of the decoder
-        self.rnn_cell = tfa.seq2seq.AttentionWrapper(self.decoder_rnn_cell, self.attention_mechanism,
-                                                     attention_layer_size=self.dec_units)
-
-        # Define the decoder with respect to fundamental rnn cell
-        self.decoder = tfa.seq2seq.BasicDecoder(self.rnn_cell, sampler=self.sampler, output_layer=self.fl)
+        self.GRU_layer = tf.keras.layers.GRU(self.dec_units, return_sequences=True,
+                                             return_state=True,
+                                             dropout=0.4,
+                                             recurrent_dropout=0.4)
 
     def build_initial_state(self, batch_size, encoder_state, dtype):
 
@@ -62,14 +127,14 @@ class Decoder(tf.keras.Model):
         decoder_initial_state = decoder_initial_state.clone(hidden_state=encoder_state)
 
         return decoder_initial_state
+
     def call(self, x, initial_state):
 
         x = self.embedding(x)
         output, _ = self.decoder(x, initial_state=initial_state,
                                  sequence_length = self.batch_size * [max_length_output-1])
 
-        return output
-
+        return output"""
 
 def create_genre_classifier(output_size):
 
