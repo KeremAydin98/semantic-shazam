@@ -6,14 +6,8 @@ min_alpha = 0.00025
 min_count = 1
 dm = 1
 
-# Encoder configurations
-vocab_size = 10000
+# Encoder-decoder configurations
+enc_units = 512
+dec_units = 512
 embedding_dim = 128
-enc_units = 1024
-batch_size = 8
-
-# Decoder configurations
-BUFFER_SIZE = 32000
-BATCH_SIZE = 64
-num_examples = 30000
-
+vocab_size = 10000
