@@ -11,7 +11,7 @@ n_units = 512
 embedding_dim = 128
 
 # Summarization inference model
-x_voc = 0
-y_voc = 0
-max_text_len = 0
-max_summary_len = 0
+x_voc = 169878
+y_voc = 28311
+max_text_len = 727
+max_summary_len = 18

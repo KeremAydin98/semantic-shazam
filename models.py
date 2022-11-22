@@ -20,23 +20,27 @@ class Seq2SeqSummarizer:
 
         enc_emb = tf.keras.layers.Embedding(self.x_voc, self.embedding_dim)(encoder_inputs)
 
-        x, hidden_state = tf.keras.layers.GRU(self.n_units,
-                                              return_sequences=True,
-                                              return_state=True,
-                                              dropout=0.4,
-                                              recurrent_dropout=0.4)(enc_emb)
+        gru_1 = tf.keras.layers.GRU(self.n_units,
+                                          return_sequences=True,
+                                          return_state=True,
+                                          dropout=0.4)
 
-        x, hidden_state = tf.keras.layers.GRU(self.n_units,
-                                              return_sequences=True,
-                                              return_state=True,
-                                              dropout=0.4,
-                                              recurrent_dropout=0.4)(x)
+        gru_2 = tf.keras.layers.GRU(self.n_units,
+                                          return_sequences=True,
+                                          return_state=True,
+                                          dropout=0.4)
 
-        encoder_outputs, hidden_state = tf.keras.layers.GRU(self.n_units,
-                                                            return_sequences=True,
-                                                            return_state=True,
-                                                            dropout=0.4,
-                                                            recurrent_dropout=0.4)(x)
+        gru_3 = tf.keras.layers.GRU(self.n_units,
+                                          return_sequences=True,
+                                          return_state=True,
+                                          dropout=0.4)
+
+        x, hidden_state = gru_1(enc_emb)
+
+        x, hidden_state = gru_2(x)
+
+        encoder_outputs, hidden_state = gru_3(x)
+
 
         """
         Decoder
@@ -51,12 +55,12 @@ class Seq2SeqSummarizer:
 
         # Decoder GRU
         decoder_gru = tf.keras.layers.GRU(self.n_units,
-                                          return_sequences=True,
-                                          return_state=True,
-                                          dropout=0.4,
-                                          recurrent_dropout=0.4)
+                                      return_sequences=True,
+                                      return_state=True,
+                                      dropout=0.4,
+                                      recurrent_dropout=0.4)
 
-        x, hidden_state = decoder_gru(dec_emb, initial_state=[hidden_state])
+        x, decoder_hidden_state = decoder_gru(dec_emb, initial_state=[hidden_state])
 
         decoder_dense = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(self.y_voc, activation="softmax"))
 
@@ -72,7 +76,7 @@ class Seq2SeqSummarizer:
 
         # Encode the input sequence to get the feature vector
         self.encoder_model = tf.keras.models.Model(inputs=encoder_inputs,
-                                                   outputs=[encoder_outputs, hidden_state])
+                                               outputs=[encoder_outputs, hidden_state])
 
         # Decoder setup
 
@@ -92,41 +96,40 @@ class Seq2SeqSummarizer:
 
         # Final decoder model
         self.decoder_model = tf.keras.models.Model([decoder_inputs] + [decoder_hidden_state_input,
-                                                   decoder_state_input_h], [decoder_outputs2] + [state_h2])
+                                               decoder_state_input_h], [decoder_outputs2] + [state_h2])
 
     def load_weights(self, weights_path):
 
-        if os.path_exists(weights_path):
+        if os.path.exists(weights_path):
 
             self.model.load_weights(weights_path)
 
-    def summarize(self,input_seq, target_word_index, reverse_target_word_index, max_summary_len):
+    def summarize(self, input_seq, target_word_index, reverse_target_word_index, max_summary_len):
 
         # Encode the input as state vectors.
-        (e_out, e_h, e_c) = self.encoder_model.predict(input_seq)
+        (e_out, e_h) = self.encoder_model.predict([input_seq])
 
         # Generate empty target sequence of length 1
         target_seq = np.zeros((1, 1))
 
         # Populate the first word of target sequence with the start word.
-        target_seq[0, 0] = target_word_index['START']
+        target_seq[0, 0] = target_word_index['start']
 
         stop_condition = False
         decoded_sentence = ''
 
         while not stop_condition:
-            (output_tokens, h) = self.decoder_model.predict([target_seq]
-                                                          + [e_out, e_h])
+            (output_tokens, h) = self.decoder_model.predict([target_seq] + [e_out, e_h])
 
             # Sample a token
             sampled_token_index = np.argmax(output_tokens[0, -1, :])
             sampled_token = reverse_target_word_index[sampled_token_index]
 
-            if sampled_token != 'END':
+            if sampled_token != 'end':
                 decoded_sentence += ' ' + sampled_token
 
             # Exit condition: either hit max length or find the stop word.
-            if sampled_token == 'END' or len(decoded_sentence.split()) >= max_summary_len - 1:
+            if sampled_token == 'end' or len(decoded_sentence.split()) >= max_summary_len - 1:
                 stop_condition = True
 
             # Update the target sequence (of length 1)

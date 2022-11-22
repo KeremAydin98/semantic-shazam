@@ -31,7 +31,7 @@ genre_classifier_model = tf.keras.models.load_model("Models/genre_classifier_mod
 
 seq2seq = Seq2SeqSummarizer(config.x_voc, config.y_voc, config.embedding_dim, config.n_units, config.max_text_len)
 
-seq2seq.load_weights("Models/summarizer_weights")
+seq2seq.load_weights("Models/summarizer.h5")
 
 # Embedding vectors of songs
 song_vectors = doc2vec.dv
@@ -67,19 +67,20 @@ for _ in range(5):
 
     prediction[0][int(tf.argmax(prediction,-1))] = 0
 
-    print("3. ",main_genres[int(tf.argmax(prediction,-1))])
+    print("3. ",main_genres[int(tf.argmax(prediction,-1))], "\n")
 
-    print("\n")
+    seq_lyrics = x_tokenizer.texts_to_sequences([df["Lyric"].iloc[index]])
 
-    seq_lyrics = x_tokenizer.texts_to_sequences(df["Lyrics"].iloc[index])
+    # Pad zero up to maximum length
+    padded_seq_lyrics = tf.keras.preprocessing.sequence.pad_sequences(seq_lyrics,  maxlen=config.max_text_len, padding="post")
 
     print(f"Given summary:\n{df['Summarization'].iloc[index]}")
-    print(f"Predicted summary:\n{seq2seq.summarize(seq_lyrics, target_word_index, reverse_target_word_index, config.max_summary_len)}")
+    print(f"Predicted summary:\n{seq2seq.summarize(padded_seq_lyrics, target_word_index, reverse_target_word_index, config.max_summary_len)}")
 
-    print("\n")
+    print("\nMost similar songs:")
 
-    print(f"Most similar songs:\n{doc2vec.most_similar([random_song_vector])}")
+    print("1. ", song_vectors.most_similar([random_song_vector])[1][0])
+    print("2. ", song_vectors.most_similar([random_song_vector])[2][0])
+    print("3. ", song_vectors.most_similar([random_song_vector])[3][0])
 
     print("--------------------------------------------\n")
-
-
