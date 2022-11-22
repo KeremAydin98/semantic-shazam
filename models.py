@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import os
 
+
 class Seq2SeqSummarizer:
 
     def __init__(self, x_voc, y_voc, embedding_dim, n_units, max_text_len):

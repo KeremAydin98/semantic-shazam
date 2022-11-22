@@ -76,6 +76,10 @@ for _ in range(5):
     print(f"Given summary:\n{df['Summarization'].iloc[index]}")
     print(f"Predicted summary:\n{seq2seq.summarize(seq_lyrics, target_word_index, reverse_target_word_index, config.max_summary_len)}")
 
+    print("\n")
+
+    print(f"Most similar songs:\n{doc2vec.most_similar([random_song_vector])}")
+
     print("--------------------------------------------\n")
 
 
