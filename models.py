@@ -1,5 +1,6 @@
 import tensorflow as tf
-import tensorflow_addons as tfa
+
+
 def create_encoder_decoder_model(x_voc, y_voc, embedding_dim, n_units, max_text_len):
 
     """
@@ -39,13 +40,13 @@ def create_encoder_decoder_model(x_voc, y_voc, embedding_dim, n_units, max_text_
     dec_emb = dec_emb_layer(decoder_inputs)
 
     # Decoder GRU
-    decoder_GRU = tf.keras.layers.GRU(n_units,
+    decoder_gru = tf.keras.layers.GRU(n_units,
                                       return_sequences=True,
                                       return_state=True,
                                       dropout=0.4,
                                       recurrent_dropout=0.4)
 
-    x, hidden_state = decoder_GRU(dec_emb, initial_state=[hidden_state])
+    x, hidden_state = decoder_gru(dec_emb, initial_state=[hidden_state])
 
     decoder_dense = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(y_voc, activation="softmax"))
 
@@ -57,84 +58,7 @@ def create_encoder_decoder_model(x_voc, y_voc, embedding_dim, n_units, max_text_
                   optimizer=tf.keras.optimizers.Adam())
 
     return model
-"""class Encoder(tf.keras.Model):
 
-    def __init__(self, vocab_size, embedding_dim, enc_units):
-
-        super(Encoder, self).__init__()
-        self.enc_units = enc_units
-        self.vocab_size = vocab_size
-        self.embedding_size = embedding_dim
-
-        self.embedding = tf.keras.layers.Embedding(self.vocab_size, self.embedding_size)
-
-        self.GRU_layer_1 = tf.keras.layers.GRU(self.enc_units,
-                                             return_sequences=True,
-                                             return_state=True,
-                                             dropout=0.4,
-                                             recurrent_dropout=0.4)
-
-        self.GRU_layer_2 = tf.keras.layers.GRU(self.enc_units,
-                                               return_sequences=True,
-                                               return_state=True,
-                                               dropout=0.4,
-                                               recurrent_dropout=0.4)
-
-        self.GRU_layer_3 = tf.keras.layers.GRU(self.enc_units,
-                                               return_sequences=True,
-                                               return_state=True,
-                                               dropout=0.4,
-                                               recurrent_dropout=0.4)
-
-    def call(self, x, hidden_state):
-
-        encoder_inputs = tf.keras.layers.Input(shape=(config.max_text_len, ))
-
-        x = self.embedding(encoder_inputs)
-
-        x, hidden_state = self.GRU_layer_1(x, initial_state=hidden_state)
-
-        x, hidden_state = self.GRU_layer_2(x, initial_state=hidden_state)
-
-        x, hidden_state = self.GRU_layer_3(x, initial_state=hidden_state)
-
-        return x, hidden_state
-
-    def initialize_hidden_state(self):
-
-        return [tf.zeros((self.batch_size, self.enc_units)), tf.zeros((self.batch_size, self.enc_units))]
-
-
-class Decoder(tf.keras.Model):
-
-    def __init__(self, vocab_size, embedding_dim, dec_units):
-
-        super(Decoder, self).__init__()
-        self.embedding_dim = embedding_dim
-        self.dec_units = dec_units
-        self.vocab_size = vocab_size
-
-        self.embedding = tf.keras.layer.Embedding(self.vocab_size, self.embedding_dim)
-
-        self.GRU_layer = tf.keras.layers.GRU(self.dec_units, return_sequences=True,
-                                             return_state=True,
-                                             dropout=0.4,
-                                             recurrent_dropout=0.4)
-
-    def build_initial_state(self, batch_size, encoder_state, dtype):
-
-        decoder_initial_state = self.rnn_cell.get_initial_state(batch_size=batch_size, dtype=dtype)
-        decoder_initial_state = decoder_initial_state.clone(hidden_state=encoder_state)
-
-        return decoder_initial_state
-
-    def call(self, x, initial_state):
-
-        x = self.embedding(x)
-        output, _ = self.decoder(x, initial_state=initial_state,
-                                 sequence_length = self.batch_size * [max_length_output-1])
-
-        return output"""
 
 def create_genre_classifier(output_size):
 

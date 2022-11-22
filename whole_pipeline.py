@@ -23,11 +23,11 @@ def get_doc2vec_vector(song_name):
 
 doc2vec = Doc2Vec.load("Models/d2v.model")
 df = pd.read_csv("Data/combined-data.csv")
-model = tf.keras.models.load_model("Models/genre_classifier_model.h5")
+genre_classifier_model = tf.keras.models.load_model("Models/genre_classifier_model.h5")
+summarizer_model = tf.keras.models.load_model("Models/summarizer_model.h5")
 
 # Embedding vectors of songs
 song_vectors = doc2vec.dv
-
 
 for _ in range(5):
 
@@ -37,7 +37,7 @@ for _ in range(5):
     random_song_vector = get_doc2vec_vector(df["SName"].iloc[index])
     print("Given genre: ",df["Genres"].iloc[index],"\n")
 
-    prediction = model.predict(tf.expand_dims(random_song_vector,0))
+    prediction = genre_classifier_model.predict(tf.expand_dims(random_song_vector,0))
     main_genres = ["Pop", "Romântico", "Pop/Rock", "R&B", "Rap", "Electronica",
                    "Rock", "Blues",  "Jazz", "Folk", "Country",  "Heavy Metal"]
     print("\nPredictions:")

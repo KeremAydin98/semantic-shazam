@@ -4,6 +4,7 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+import pickle
 
 """
 Preprocessing of input data
@@ -102,5 +103,13 @@ model.fit([x_train, y_train[:,:-1]],
 
 # Save the model
 model.save("Models/summarizer_model.h5")
+
+# Save the tokenizers
+with open('Pickles/x_tokenizer.pickle', 'wb') as handle:
+    pickle.dump(x_tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('Pickles/y_tokenizer.pickle', 'wb') as handle:
+    pickle.dump(y_tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
 
 
