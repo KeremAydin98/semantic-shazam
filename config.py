@@ -9,3 +9,9 @@ dm = 1
 # Encoder-decoder configurations
 n_units = 512
 embedding_dim = 128
+
+# Summarization inference model
+x_voc = 0
+y_voc = 0
+max_text_len = 0
+max_summary_len = 0

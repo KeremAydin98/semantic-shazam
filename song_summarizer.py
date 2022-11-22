@@ -87,22 +87,22 @@ y_voc = len(y_tokenizer.word_index) + 1
 Train and save the model
 """
 
-# Initialize the Seq2seq model
-model = create_encoder_decoder_model(x_voc, y_voc, config.embedding_dim, config.n_units, max_text_len)
+# Initialize the model
+seq2seq = Seq2SeqSummarizer(x_voc, y_voc, config.embedding_dim, config.n_units, max_text_len)
 
 # Early stopping callback
 early_stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2)
 
 # Train the model
-model.fit([x_train, y_train[:,:-1]],
-          y_train.reshape(y_train.shape[0], y_train.shape[1], 1)[:,1:],
-          validation_data=([x_val, y_val[:,:-1]], y_val.reshape(y_val.shape[0], y_val.shape[1],1)[:,1:]),
-          epochs=50,
-          batch_size=32,
-          callbacks=[early_stop])
+seq2seq.model.fit([x_train, y_train[:,:-1]],
+                  y_train.reshape(y_train.shape[0], y_train.shape[1], 1)[:,1:],
+                  validation_data=([x_val, y_val[:,:-1]], y_val.reshape(y_val.shape[0], y_val.shape[1],1)[:,1:]),
+                  epochs=50,
+                  batch_size=32,
+                  callbacks=[early_stop])
 
 # Save the model
-model.save("Models/summarizer_model.h5")
+seq2seq.model.save_weights("Models/summarizer_weights")
 
 # Save the tokenizers
 with open('Pickles/x_tokenizer.pickle', 'wb') as handle:
