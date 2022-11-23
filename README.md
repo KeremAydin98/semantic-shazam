@@ -147,6 +147,7 @@ I know that the image above is a machine translation task with a seq2seq model. 
 
 ## An example result
 
+```
 Random song name: Kitty Box
 Artist name:  Lil' Kim
 Given genre:  Rap 
@@ -177,3 +178,4 @@ Most similar songs:
 2.  Freaky Deaky (With Doja Cat)
 3.  Make It Nasty
 --------------------------------------------
+```
