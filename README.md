@@ -1,12 +1,20 @@
 # semantic-shazam
 
-This project aims to classify and summarize songs based on their lyrics. That's why I called this project Semantic Shazam, since it builds on the meaning of the song lyrics instead of the music sound. For the given song lyric, it returns the summarization of the song lyrics, most similar songs in the dataset and finally genre of the song.
+The dataset:
+https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
 
+The models:
+https://drive.google.com/drive/folders/1hZw8nHlHS2ww_Hywksj2G3d1_5kotPD6?usp=sharing
+
+## Introduction
+
+This project aims to classify and summarize songs based on their lyrics. That's why I called this project Semantic Shazam, since it builds on the meaning of the song lyrics instead of the music sound. For the given song lyric, it returns the summarization of the song lyrics, most similar songs in the dataset and finally genre of the song.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/77073029/203484003-82b8d37f-f140-4f63-ac78-d356b9d63549.jpg" />
 </p>
 
+## Extracting semantics
 
 But how do we make the computer understand meaning? Word embeddings are the solution of the researchers. They capture the meaning by comparing neighboring words, since similar words would have the same context words. That is actually what humans do in case we do not know the meaning of a word in a sentence. We look at other words of that sentence and try to derive a meaning. 
 
@@ -27,3 +35,15 @@ Just like that we derived the meaning of words, but I needed to find connections
 </p>
 
 **Gensim** library already had a doc2vec implementation. I only had one adjustment to the train set. Not every word add a meaning to the sentence like "the", "a" or etc. These kind of words are called stop words in the literature. I have removed them by using **spacy** library. 
+
+## What can Semantic Shazam do?
+
+### 1. Genre classification
+
+The dataset contained many unique genres. So I have only chosen the most frequent ones. 
+The main genre list contained:
+
+"Pop, Romântico, Pop/Rock, R&B, Rap, Electronica, Rock, Blues, Jazz, Folk, Country, Heavy Metal". 
+
+
+
