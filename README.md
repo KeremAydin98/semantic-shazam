@@ -133,3 +133,14 @@ def add_summarization(doc):
 
 This sometimes gave dubious summarizations but I needed to start from somewhere. So I have created a dataset for the summarization, what is next?
 
+Now it is time to build the model. Summarization requires a Sequence to sequence model, since it takes a sequence as an input and returns a sequence as an output. Sequence to sequences model is built by using two different NLP models which are encoders and decoders. Encoders are similar the sequential labelling models and decoder are similar to language models. 
+
+For a summarization first we need to derive the context from the input, then generate a summary from that.
+
+Sequential labelling models takes a text as input and normally tags the words in that sentence with an RNN structure. But in encoders tagging of the words is not needed, instead the context is needed. We know that RNN structures store some kind of context from their previous inputs in their hidden state. So the hidden state of the last RNN cell in the encoder would contain context from every single word in that sentence which is what we need.
+
+Language models are the ones that take this context vectors and generate some kind of summary from that context. And every single output of the language model is used to derive a cross entropy loss. The model compares the output with the excepted summary in our dataset. And backpropagates that loss to improve the performance of both encoder and decoder. 
+
+![adada](https://user-images.githubusercontent.com/77073029/203494954-6607fe17-c7b2-4fa8-9039-98aa0d2522ca.png)
+
+I know that the image above is a machine translation task with a seq2seq model. But since both of them has the same structure I think it is ok. There is one problem left. In training, we feed the language model the correct previous word from the labels in the dataset, however in prediction stage we do not have that. That's why we have to build a different model for inference. In prediction stage, we feed the language model its previous outputs as input instead of the correct input.
