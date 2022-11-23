@@ -144,3 +144,36 @@ Language models are the ones that take this context vectors and generate some ki
 ![adada](https://user-images.githubusercontent.com/77073029/203494954-6607fe17-c7b2-4fa8-9039-98aa0d2522ca.png)
 
 I know that the image above is a machine translation task with a seq2seq model. But since both of them has the same structure I think it is ok. There is one problem left. In training, we feed the language model the correct previous word from the labels in the dataset, however in prediction stage we do not have that. That's why we have to build a different model for inference. In prediction stage, we feed the language model its previous outputs as input instead of the correct input.
+
+## An example result
+
+Random song name: Kitty Box
+Artist name:  Lil' Kim
+Given genre:  Rap 
+
+1/1 [==============================] - 0s 30ms/step
+
+Predictions:
+1.  Rap
+2.  R&B
+3.  Pop 
+
+Given summary:
+(My kitty box, my kitty box, my kitty box, my kitty box). .
+1/1 [==============================] - 1s 1s/step
+1/1 [==============================] - 0s 42ms/step
+1/1 [==============================] - 0s 38ms/step
+1/1 [==============================] - 0s 50ms/step
+1/1 [==============================] - 0s 50ms/step
+1/1 [==============================] - 0s 29ms/step
+1/1 [==============================] - 0s 33ms/step
+1/1 [==============================] - 0s 33ms/step
+1/1 [==============================] - 0s 30ms/step
+Predicted summary:
+ i am gonna be a hesitate line
+
+Most similar songs:
+1.  Loverboy (Remix) (Feat. da Brat, Ludacris, Shawnna, & Twenty Ii)
+2.  Freaky Deaky (With Doja Cat)
+3.  Make It Nasty
+--------------------------------------------
