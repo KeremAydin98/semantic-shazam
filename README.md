@@ -3,7 +3,7 @@
 The dataset:
 https://www.kaggle.com/datasets/neisse/scrapped-lyrics-from-6-genres
 
-The models:
+My version of dataset and models:
 https://drive.google.com/drive/folders/1hZw8nHlHS2ww_Hywksj2G3d1_5kotPD6?usp=sharing
 
 ## Introduction
@@ -64,4 +64,72 @@ The loss is Categorical Cross Entropy because I turned genres into one hot encod
 The model reached over %60 accuracy, it does not seem a lot but you have to remember that the model is only guessing song genres from the words in the lyrics. Also some of the genres are very close to each other, it is sometimes hard to distinguish them. The confusion matrix of the model's predictions can be seen below:
 
 ![genre_classifier_cm](https://user-images.githubusercontent.com/77073029/203489995-ff18a3de-54da-43ff-b9ad-1b5672191739.png)
+
+### 2. Most similar songs
+
+The Doc2Vec class of Gensim already had a most_similar method that brings the closest paragraph vectors of the given song.
+
+### 3. Summarization 
+
+This was the hardest part of this project. Summarization is not an easy task in NLP. Especially when you do not have the needed dataset. The song dataset did not contain a summarization column, so I have added one. By using a simple method that utilizes the strength of the sentence according to the frequency of the words in it excluding the stop words of course. 
+
+```
+def add_summarization(doc):
+
+  doc = doc.replace("\n",". ")
+  doc = doc.replace("..",".")
+  doc = doc.replace(",.",".")
+
+  replace_abbreviations = {"'m":" am", "'ll":" will", "'em":" them",
+                           "'re":" are", "'s":" is", "n't":" not" ,
+                           "’m":" am", "’ll":" will", "’em":" them",
+                           "’re":" are", "’s":" is", "n’t":" not" , }
+
+  for k,v in replace_abbreviations.items():
+
+    doc = doc.replace(k,v)
+
+  doc = nlp(doc)
+
+  keyword = []
+  stop_words = list(STOP_WORDS)
+  pos_tag = ["PROPN", "ADJ", "NOUN", "VERB"]
+
+  for token in doc:
+
+    if(token.text in stop_words or token.text in string.punctuation):
+      continue
+
+    if(token.pos_ in pos_tag):
+      keyword.append(token.text)
+
+  freq_word = Counter(keyword)
+
+  try:
+
+    max_freq = Counter(keyword).most_common(1)[0][1]
+    for word in freq_word.keys():
+      freq_word[word] = (freq_word[word]/max_freq)
+
+    sent_strength = {}
+    for sent in doc.sents:
+      for word in sent:
+        if word.text in freq_word.keys():
+          if sent in sent_strength.keys():
+            sent_strength[sent] += freq_word[word.text]
+          else:
+            sent_strength[sent] = freq_word[word.text]
+
+    summarized_sentences = nlargest(1, sent_strength, key=sent_strength.get)
+
+    final_sentences = [w.text for w in summarized_sentences]
+
+    return " ".join(final_sentences)
+
+  except:
+
+    return None
+```
+
+This sometimes gave dubious summarizations but I needed to start from somewhere. So I have created a dataset for the summarization, what is next?
 
