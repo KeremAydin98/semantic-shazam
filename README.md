@@ -45,5 +45,23 @@ The main genre list contained:
 
 "Pop, Romântico, Pop/Rock, R&B, Rap, Electronica, Rock, Blues, Jazz, Folk, Country, Heavy Metal". 
 
+The inputs for the model were the paragraph vectors of the songs that we derived while training with Doc2Vec algorithm. And the desired output is the genre of the song. I have turned both of the inputs and outputs to the tf.data.Dataset format and did a batching process on them. The structure of ANN model for the classification task can be seen below:
 
+```
+model = tf.keras.Sequential([
+        tf.keras.layers.Dense(512, activation="relu"),
+        tf.keras.layers.Dense(512, activation="relu"),
+        tf.keras.layers.Dense(output_size, activation="softmax"),
+    ])
+
+    model.compile(loss=tf.keras.losses.CategoricalCrossentropy(),
+                  optimizer=tf.keras.optimizers.Adam(),
+                  metrics=["accuracy"])
+```
+
+The loss is Categorical Cross Entropy because I turned genres into one hot encoding format using tf.one_hot method. 
+
+The model reached over %60 accuracy, it does not seem a lot but you have to remember that the model is only guessing song genres from the words in the lyrics. Also some of the genres are very close to each other, it is sometimes hard to distinguish them. The confusion matrix of the model's predictions can be seen below:
+
+![genre_classifier_cm](https://user-images.githubusercontent.com/77073029/203489995-ff18a3de-54da-43ff-b9ad-1b5672191739.png)
 
